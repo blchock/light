@@ -1,16 +1,16 @@
 {
 	"debug": true,
 	"ver": 1,
-	"personName": "fmc",
+	"personName": "test",
 	"lang": {
 		"cn": {
-			"fmc": "深圳市设施之家"
+			"test": "深圳市TEST"
 		},
 		"oth": {
-			"fmc": "深圳市設施之家"
+			"test": "深圳市TEST"
 		},
 		"en": {
-			"fmc": "Shenzhen FMC"
+			"test": "Shenzhen test"
 		}
 	},
 	"class": [
