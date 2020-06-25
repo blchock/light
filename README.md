@@ -58,7 +58,7 @@ light页面使用mustache语法渲染页面，在数据库中title字段是页�
 template数据存储的是页面模板，
 data_json数据存储的是模板数据，
 访问页面地址类似下面的url
-http://192.168.200.185:8009/sr/h5/page.html?clientId=o2jgL4ySsttRVb7o6umdK1aDAtdo&accessToken=ed484c1d-46fb-4262-9ddd-7332ca3bcd04&orgType=test&requirementType=PR&isShowMenu=0&code=home&version=0.0.1#/
+http://localhost:3000/page?accessToken=abc&appid=0&license=0&orgId=123&code=home&version=1#/
 其中version字段需要与数据库中的相同字段匹配，代表该页面当前版本；type字段用于标识页面类型；is_active字段代表数据库中该页面是否启用；code字段也需要与链接中code匹配，代表该页面的名称
 
 模版遵循mustache语法书写，data_json里的数据可以直接在模板中读取，页面参数如title,code.type,accessToken,orgType,isShowMenu,version以及数据库中的参数change_by,create_time等都可以直接在模版中读取。
