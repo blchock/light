@@ -24,7 +24,7 @@
 
 ## 数据库设计
 ```sql
- CREATE TABLE `sr_wxapp_page` (
+ CREATE TABLE `light_pages` (
   `id_` bigint(20) NOT NULL COMMENT 'ID',
   `code` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '页面地址',
   `title` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '标题',
@@ -40,7 +40,7 @@
   `create_by` bigint(20) DEFAULT NULL COMMENT '创建人',
   `create_date` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id_`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='light页面配置表（sr_wxapp_page）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='light页面配置表（light_pages）';
 ```
 
 ## 服务器设计思路
