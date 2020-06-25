@@ -1,0 +1,161 @@
+{
+	"debug": false,
+	"ver": 1,
+	"personName": "fmc",
+	"designSize": {
+		"w": 750,
+		"h": 1334
+	},
+	"menus": [
+		{
+			"icon": "wx-icon-1",
+			"title": "m1t",
+			"content": "m1c",
+			"goto": {
+				"page": "sr",
+				"templateCode": "customerApp1",
+				"ext": false,
+				"orgId": "1159711601767616512",
+				"workerId": "6396000617",
+				"requireType": "SR",
+				"isShowMyRequireLink": true,
+				"back": "home",
+				"T": true,
+				"title": "m1t",
+				"menuTital": "m1t",
+				"args": "requireSubmit"
+			}
+		},
+		{
+			"icon": "wx-icon-2",
+			"title": "m2t",
+			"content": "m2c",
+			"goto": {
+				"page": "sr",
+				"templateCode": "customerApp2",
+				"ext": false,
+				"orgId": "1159711601767616512",
+				"workerId": "6396000617",
+				"requireType": "SR",
+				"isShowMyRequireLink": true,
+				"back": "home",
+				"T": true,
+				"title": "m2t",
+				"menuTital": "m2t",
+				"args": "requireSubmit"
+			}
+		},
+		{
+			"icon": "wx-icon-3",
+			"title": "m3t",
+			"content": "m3c",
+			"goto": {
+				"page": "sr",
+				"templateCode": "customerApp3",
+				"ext": false,
+				"orgId": "1159711601767616512",
+				"workerId": "6396000617",
+				"requireType": "CP",
+				"isShowMyRequireLink": true,
+				"back": "home",
+				"T": true,
+				"title": "m3t",
+				"menuTital": "m3t",
+				"args": "requireSubmit"
+			}
+		},
+		{
+			"icon": "wx-icon-1",
+			"title": "m5t",
+			"content": "m5c",
+			"goto": {
+				"route": "/h5/mytask/",
+				"page": false,
+				"ext": false,
+				"back": "home",
+				"args": "workPlaceLists?source=locinventory"
+			}
+		}
+	],
+	"fixedMenu": {
+		"icon": "wx-icon-4",
+		"title": "m4t",
+		"content": "m4c",
+		"goto": {
+			"page": "sr",
+			"templateCode": "customerApp1",
+			"ext": false,
+			"orgId": "1159711601767616512",
+			"workerId": "6396000617",
+			"requireType": "SR",
+			"isShowMyRequireLink": "true",
+			"back": "home",
+			"args": "myRequire"
+		}
+	},
+	"imgs": {
+		"wx-banner": {
+			"url": "/api/file/down/1275015788557897728.png",
+			"area": {
+				"w": "100%"
+			}
+		}
+	},
+	"imgpack": [
+		{
+			"name": "home",
+			"size": {
+				"w": 256,
+				"h": 512
+			},
+			"url": "/api/file/down/1275015773752004608.png",
+			"img": {
+				"wx-icon-1":[126, 126, 118, 118],  
+				"wx-icon-2":[4, 126, 118, 118],  
+				"wx-icon-3":[126, 4, 118, 118],  
+				"wx-icon-4":[4, 4, 118, 118],  
+				"wx-next":[4, 248, 36, 36]
+			}
+		}
+	],
+	"lang": {
+		"cn": {
+			"m1t": "报事报修",
+			"m1c": "主要功能是为用户提供优秀的信用卡管理方案",
+			"m2t": "预定会议室",
+			"m2c": "主要功能是为用户提供优秀的信用卡管理方案",
+			"m3t": "投诉建议",
+			"m3c": "主要功能是为用户提供优秀的信用卡管理方案",
+			"m4t": "我的服务",
+			"m4c": "主要功能是为用户提供优秀的信用卡管理方案",
+			"m5t": "我的资产",
+			"m5c": "主要功能是为用户提供优秀的信用卡管理方案"
+		},
+		"oth": {
+			"m1t": "報事報修",
+			"m1c": "主要功能是為用戶提供優秀的信用卡管理方案",
+			"m2t": "預定會議室",
+			"m2c": "主要功能是為用戶提供優秀的信用卡管理方案",
+			"m3t": "投訴建議",
+			"m3c": "主要功能是為用戶提供優秀的信用卡管理方案",
+			"m4t": "我的服務",
+			"m4c": "主要功能是為用戶提供優秀的信用卡管理方案",
+			"m5t": "我的資產",
+			"m5c": "主要功能是為用戶提供優秀的信用卡管理方案"
+		},
+		"en": {
+			"m1t": "Report And Repair",
+			"m1c": "To provide users with excellent credit card management solutions",
+			"m2t": "Book Meeting Room",
+			"m2c": "To provide users with excellent credit card management solutions",
+			"m3t": "Complaint And Advice",
+			"m3c": "To provide users with excellent credit card management solutions",
+			"m4t": "My Services",
+			"m4c": "To provide users with excellent credit card management solutions",
+			"m5t": "My Assets",
+			"m5c": "To provide users with excellent credit card management solutions"
+		}
+	},
+	"created": "() => { newTag({code:'home',version:1}); }",
+	"mounted": "() => { console.log('$' + Sign.toThousands(213414525.55)); }"
+}

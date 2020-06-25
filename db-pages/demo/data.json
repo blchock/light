@@ -1,0 +1,29 @@
+{
+	"debug": true,
+	"ver": 1,
+	"personName": "fmc",
+	"lang": {
+		"cn": {
+			"fmc": "深圳市设施之家"
+		},
+		"oth": {
+			"fmc": "深圳市設施之家"
+		},
+		"en": {
+			"fmc": "Shenzhen FMC"
+		}
+	},
+	"class": [
+		"http://cdn.staticfile.org/amazeui/1.0.0-rc1/css/amazeui.basic.min.css"
+	],
+	"require": [
+		"http://cdn.staticfile.org/amazeui/1.0.0-rc1/js/amazeui.basic.min.js"
+	],
+	"func": {
+		"hello": "()=>{ return 'hello,world! ' + data.personName }",
+		"testAdd": "function testAdd() {$('#retNum').html(Number($('#aNum').val()) + Number($('#bNum').val())); }",
+		"openScan": "function openScan() { wx.scanCode({success: (res)=>{console.log('code:',res);}}); }",
+		"openCamera": "function openCamera() { wx.chooseImage({success: (res)=>{console.log('images:',res);}}); }"
+	},
+	"mounted": "()=>{console.log('begin test..');wx.ready(function(){console.log('begin test2');wx.checkJsApi({jsApiList:['scanQRCode','chooseImage'],success:function(res){console.log(res)}})})};"
+}

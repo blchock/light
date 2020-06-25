@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- 适配屏幕的方案是采用虚拟的“窗口”(viewport)缩放，算出缩放比，设置scale做到适配所有机型 -->
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" />
+	<title text="" <%=title%>""></title>
+	<!--TODO 这里需要测试  link引入css (用绝对路径/ )  相对路径要去掉/h5/-->
+	<link rel='stylesheet' href='/stylesheets/weui.min.css' />
+	<link rel='stylesheet' href='/stylesheets/style.css' />
+	<style type="text/css">
+		<%-style%>
+	</style>
+</head>
+
+<body>
+	<script src="/javascripts/zepto.min.js"></script>
+	<script src="/javascripts/mustache.min.js"></script>
+	<script src="/javascripts/sign-ext.min.js"></script>
+	<!-- 因为zepto默认构建包含: Core, Ajax, Event, Form, IE几个模块，要使用animate需要再引用fx模块。 -->
+	<script src="/javascripts/zepto.fx.js"></script>
+	<script src="/javascripts/jweixin-1.6.0.js"></script>
+	<script src="/javascripts/axios.min.js"></script>
+	<script src="/javascripts/router.min.js"></script>
+	<div id="page">
+		Page loading ...
+	</div>
+	<script id="template" type="x-tmpl-mustache">
+		<%-template%>
+	</script>
+	<script>
+		accessToken = "<%=accessToken%>";
+		wechatAppid = "<%=appid%>";
+		license = "<%=license%>";
+		let wxObj = {}//本系统所有项目,工单表对象,微信对象
+		//axios config
+		axios.defaults.headers.common['accessToken'] = accessToken; //这个头部accessToken 必须要放在accessToken赋值之后
+		//axios 响应拦截（配置请求回来的信息）
+		axios.interceptors.response.use(function (resp) {
+			if (resp && resp.data.status == 401) { //权限异常，跳转原生APP登录页面
+				console.log("权限异常，跳转原生APP登录页面");
+			} else if (resp && (resp.data.status == 403)) { //无操作权限
+				console.log("无操作权限");
+			} else if (resp && (resp.data.status == 500 || resp.data.status == 503)) { //业务逻辑异常，展示到弹出消息框
+				console.log("业务逻辑异常，展示到弹出消息框");
+			} else if (resp && (resp.data.status == 404 || resp.data.status == 400)) { //其它异常，展示到弹出消息框
+				console.log("其它异常，展示到弹出消息框");
+			}
+			return resp;
+		}, function (error) {// 处理响应失败
+			console.log("处理响应失败:" + error);
+			return Promise.reject(error);
+		});
+		// 初始化微信jssdk
+		// var showUrl = window.location.href.split('#')[0];
+		// var requestUrl = BaseSelfUrl + '/sr/commonResouce/wx/getwechat';
+		// console.log("requestUrl:%s,showUrl:%s", requestUrl, showUrl);
+		// axios.get(`${BaseSelfUrl}/sr/commonResouce/wx/getwechat`, { params: { requesturl: showUrl, license: license } }).then(function (res) {
+		// 	if (res.data.status === 200) {
+		// 		console.log("微信鉴权返回的数据:", res.data.record);
+		// 		wxObj.accessToken = res.data.record.accessToken;
+		// 		wx.config({
+		// 			debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来
+		// 			appId: wechatAppid, // 必填，公众号的唯一标识
+		// 			timestamp: res.data.record.timestamp, // 必填，生成签名的时间戳
+		// 			nonceStr: res.data.record.nonce, // 必填，生成签名的随机串
+		// 			signature: res.data.record.signature,// 必填，签名，见附录1
+		// 			jsApiList: [
+		// 				'chooseImage',//拍照或从手机相册中选图接口
+		// 				'uploadImage',//上传图片接口
+		// 				'getLocalImgData',//获取本地图片接口
+		// 				'previewImage',//预览图片
+		// 				'downloadImage',//下载图片
+		// 				'scanQRCode',//扫一扫
+		// 				'checkJSApi',//判断客户端是否支持js
+		// 				'startRecord',//开始录音	
+		// 				'stopRecord',//停止录音
+		// 				'onVoiceRecordEnd',//监听录音自动停止
+		// 				'playVoice',//播放语音
+		// 				'pauseVoice',//暂停播放
+		// 				'stopVoice',//停止播放
+		// 				'onVoicePlayEnd',//监听语音播放完毕
+		// 				'uploadVoice',//上传接口
+		// 				'downloadVoice',//下载接口
+		// 				'translateVoice',//智能接口识别音频
+		// 				'getNetworkType',//设备信息获取网络状态
+		// 				'getLocation',//地理位置使用内置地图
+		// 				'openLocation',//获取地理位置
+		// 				'startSearchBeacons',//摇一摇周边	开启ibeacon
+		// 				'stopSearchBeacons',//关闭ibeacon	
+		// 				'onSearchBeacons',//监听ibeacon	
+		// 				'chooseCard',//微信卡券拉取使用卡券列表
+		// 				'addCard',//批量添加卡券接口
+		// 				'openCard',//查看微信卡包的卡券
+		// 			] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+		// 		});
+		// 	} else {
+		// 		console.log("微信鉴权失败,影响拍照等功能");
+		// 	}
+		// });
+		// 读取数据
+		var data = {
+			"accessToken": "<%=accessToken%>",
+			"title": "<%=title%>",
+			"code": "<%=code%>",
+			"type": "<%=type%>",
+			"orgId": "<%=orgId%>",
+			"version": "<%=version%>",
+			"appid": "<%=appid%>",
+			"license": "<%=license%>"
+		}
+		var params = JSON.parse(`<%-params%>`); // 传递地址栏参数
+		for (var k in params) {
+			data[k] = params[k];
+		}
+		var language = "<%=language%>" // 当前语言
+		var lang = {}
+		var dataJson = JSON.parse(`<%-data_json%>`);
+		for (var k in dataJson) {
+			if (dataJson.hasOwnProperty(k)) {
+				if (k == 'func') { // 支持在json中定义函数
+					for (var j in dataJson[k]) {
+						if (dataJson[k].hasOwnProperty(j)) {
+							data[j] = eval(dataJson[k][j]);
+						}
+					}
+				} else if (k == 'lang' && dataJson[k].cn) {
+					lang = dataJson[k];
+				} else data[k] = dataJson[k];
+			}
+		}
+		if (data.class) { // 动态加载cdn中的css代码
+			for (var k = 0; k < data.class.length; k++) {
+				document.write(`<link rel="stylesheet" href="${data.class[k]}" />`);
+			}
+		}
+		if (data.require) { // 动态加载cdn中的js代码
+			for (var k = 0; k < data.require.length; k++) {
+				document.write("<script src=\"" + data.require[k] + "\"><\/script>");
+			}
+		}
+		var getTrans = function (nm) { // 获取国际化数据
+			if (language == 'en-US') { // 英文
+				return lang.en[nm];
+			}
+			if (language == 'zh-CHT') { // 繁体中文
+				return lang.oth[nm];
+			}
+			if (lang.cn[nm]) return lang.cn[nm]; // 简体中文
+			return nm;
+		}
+		data.t = function () { // 多语言支持 用法：{{#t}}name{{/t}} 其中name是定义在lang.en,lang.cn,lang.oth中的不用语言变量名
+			var self = this
+			return function (name, render) {
+				var nm = self[name] || name;
+				return getTrans(nm);
+			}
+		}
+		data.u = function () { // 返回相对路径 用法：<a href="{{#u}}link1.html{{/u}}">跳转</a>
+			var self = this
+			return function (path, render) {
+				if (self[path]) return window.location.origin + self[path];
+				return window.location.origin + path;
+			}
+		}
+		var designSize = data.designSize || { w: 750, h: 1334 }; // 设计尺寸，图片需要知道
+		var wSize = { w: document.body.clientWidth, h: document.body.clientHeight }
+		data.scale = { w: wSize.w / designSize.w, h: wSize.h / designSize.h } // 存储适配缩放比例
+		var getVW = function (w) {
+			if (w) {
+				if (Number(w)) {
+					return Number(w) / designSize.w * 100 + "vw";
+				}
+				return w;
+			}
+		}
+		var getVH = function (h) {
+			if (h) {
+				if (Number(h)) {
+					return Number(h) / designSize.h * 100 + "vh";
+				}
+				return h;
+			}
+		}
+		var getSize = getVW;
+		data.s = function () { // 计算适配后的尺寸（传入px对应的数值） {{#s}}30{{/s}}
+			var self = this
+			return function (d, render) {
+				if (self[d]) return getSize(self[d]);
+				return getSize(d);
+			}
+		}
+		if (data.standard == "vh") getSize = getVH;
+		if (data.imgpack) { // 转换打包好的图片到imgs里面
+			data.imgs = data.imgs || {}
+			for (var i = 0; i < data.imgpack.length; i++) {
+				var tpsName = data.imgpack[i].name;
+				var url = data.imgpack[i].url;
+				var img = data.imgpack[i].img;
+				var size = data.imgpack[i].size;
+				for (var name in img) {
+					data.imgs[name] = {
+						from: tpsName,
+						url: url,
+						type: "css",
+						size: size,
+						area: {
+							w: img[name][2], h: img[name][3], l: img[name][0], t: img[name][1]
+						}
+					}
+				}
+			}
+		}
+		if (data.imgs) {
+			var imgs = data.imgs;
+			data.i = function () {
+				var self = this
+				return function (name, render) {
+					var img = imgs[name];
+					if (self[name]) img = imgs[self[name]];
+					if (!img) {
+						console.log("#ERROR! not fond image name:" + name);
+						return '';
+					}
+					if (data.debug) { console.log("#i load:", img); }
+					if (typeof img == 'string') { // strimg 直接返回图片路径
+						if (img.slice(0, 4) == '/api') return img.slice(4);
+						return img;
+					} else {
+						var path = img.url;
+						if (img.url.slice(0, 4) == '/api') path = img.url.slice(4);
+						var area = img.area; // w,h,l,t 宽高左顶
+						area.w = getSize(area.w);
+						area.h = getSize(area.h);
+						area.l = getSize(area.l);
+						area.t = getSize(area.t);
+						if (img.type == 'css') { // cssimg样式
+							if (area) {
+								var ret = "display:inline-block; overflow:hidden; background:url(" + path + ");background-repeat:no-repeat;" + (img.size ? "background-size:" + getSize(img.size.w) + " " + getSize(img.size.h) + ";" : "") + (area.w ? "width:" + area.w + ";" : "") + (area.h ? "height:" + area.h + ";" : "") + (area.l ? "background-position:-" + area.l + " -" + area.t + ";" : "");
+								if (data.debug) { console.log("#i css:", ret); }
+								return ret;
+							}
+							return "background:url(" + path + ");background-repeat:no-repeat;"
+						} else { // srcimg图片
+							if (area) {
+								var ret = 'src="' + path + (area.w ? '" width="' + area.w + '"' : "") + (area.h ? ' height="' + area.h + '"' : "");
+								if (data.debug) { console.log("#i src:", ret); }
+								return ret;
+							}
+							return 'src="' + path + '"';
+						}
+					}
+				}
+			}
+		}
+		// 参数：url 直接使用url，type/goType 跳转类型，path 路径，route 路由，page 页面，ext 后缀，args 后参数，其他的都作为键值对放参数中，tag 打tag，addTag 打tag并跳转
+		// 地址拼接：path(window.location.origin) + route(/sr/h5/) + page + ext(.html) ? clientId,accessToken,orgId,... + #/ + args;
+		var gotoUrl = function (json) {
+			if (data.debug) { console.log("#go json:", json); }
+			json.type = json.type || json.goType || "href" // 跳转类型：href当前页面，open新的窗口，string 不跳转只返回url
+			var url = window.location.origin
+			if (json.url) {
+				url = json.url;
+			} else {
+				if (json.page == false) json.page = "";
+				else json.page = json.page || "page";
+				var ext = ""
+				if (json.ext == false) ext = "";
+				if (json.ext) ext = json.ext;
+				url = (json.path || url) + (json.route || "/") + json.page + ext + "?accessToken=" + accessToken;
+				if (json.page) {
+					url += "&appid=" + data.appid + "&license=" + data.license;
+					if (json.templateCode) url += "&orgCode=" + data.orgId;
+					else url += "&orgId=" + data.orgId;
+				}
+				var needTrans = json.T; // 需要从国际化中拉取数据
+				for (var key in json) {
+					if (key == 'page' || key == 'type' || key == 'args' || key == 'path' || key == 'route' || key == 'ext' || key == 'tag' || key == 'addTag' || key == 'T') continue;
+					if (needTrans) url = url + "&" + key + "=" + getTrans(json[key]);
+					else url = url + "&" + key + "=" + json[key];
+				}
+				url += "#/";
+				if (json.args) url += json.args;
+			}
+			if (data.debug) { console.log("#go:", url); }
+			if (json.addTag) { // 打tag不跳转
+				var name = json.addTag.slice();
+				json.addTag = undefined;
+				Sign.set('go-' + name, json);
+				Sign.set('url-' + name, url); // 存储url供外部调用
+				return;
+			}
+			if (json.type == 'href') {
+				return "window.location.href='" + url + "';";
+			} else if (json.type == 'open') {
+				return "window.open('" + url + "');";
+			}
+			return url;
+		}
+		// newTag 传入参数，tag为标签名，不填则将code当tag
+		window.newTag = function (param) {
+			param.addTag = param.tag || param.code;
+			if (param.addTag) gotoUrl(param);
+			else {
+				if (data.debug) { console.log("#ERROR! not found tag name!"); }
+			}
+		}
+		// 跳转到tag页面 传tag，额外参数
+		window.goTag = function (tag, params) {
+			if (data.debug) { console.log("#goTag data:", tag, params); }
+			var goData = Sign.get('go-' + tag);
+			if (goData) {
+				Object.assign(goData, params); // 合并自定义参数
+				goData.addTag = undefined;
+				if (data.debug) { console.log("#goTag:", goData); }
+				return gotoUrl(goData);
+			} else {
+				if (data.debug) { console.log("#ERROR! not found go-tag:", tag); }
+			}
+		}
+		// go 支持添加tag跳转到tag
+		data.go = function () { // {{#go}}{"page":"srApply"}{{/go}}
+			var self = this
+			return function (inp, render) {
+				var json = ""
+				if (self[inp]) {
+					json = self[inp];
+				} else {
+					if (Number(inp)) {
+						return 'window.history.go(' + Number(inp) + ');'; // 前进或后退
+					} else json = JSON.parse(inp);
+				}
+				if (data.debug) { console.log("#data.go:", json); }
+				if (json.tag) {
+					return window.goTag(json.tag, json);
+				} else return gotoUrl(json);
+			}
+		}
+		if (data.created) {
+			eval(data.created)();
+		}
+		if (data.debug) {
+			console.log("#Page:", data.title);
+			console.log("#Page data:", data);
+			console.log("#Page language:", lang);
+		}
+		var rendered = Mustache.render(document.getElementById('template').innerHTML, data);
+		document.getElementById('page').innerHTML = rendered;
+		if (data.mounted) {
+			eval(data.mounted)();
+		}
+	</script>
+</body>
+
+</html>

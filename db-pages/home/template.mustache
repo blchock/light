@@ -1,0 +1,27 @@
+<div class="main">
+    <img class="banner" {{#i}}wx-banner{{/i}} onclick="{{#go}}{"code":"demo","version":1,"user":"bill"}{{/go}}" />
+    <div class="menu">
+        <ul>
+            {{#menus}}
+            <li onclick="{{#go}}goto{{/go}}">
+                <span class="item-icon" style="{{#i}}icon{{/i}}"></span>
+                <div class="item-content">
+                    <span style="font-size: {{#s}}30{{/s}};">{{#t}}title{{/t}}</span>
+                    <p style="font-size: {{#s}}20{{/s}}; line-height: {{#s}}30{{/s}};">{{#t}}content{{/t}}</p>
+                </div>
+                <span class="item-go" style="{{#i}}wx-next{{/i}}"></span>
+            </li>
+            {{/menus}}
+        </ul>
+    </div>
+    {{#fixedMenu}} 
+    <div class="bom-btn" onclick="{{#go}}goto{{/go}}">
+        <span class="item-icon" style="{{#i}}icon{{/i}}"></span>
+        <div class="item-content">
+            <span style="font-size: {{#s}}30{{/s}};">{{#t}}title{{/t}}</span>
+            <p style="font-size: {{#s}}20{{/s}}; line-height: {{#s}}30{{/s}};">{{#t}}content{{/t}}</p>
+        </div>
+        <span class="item-go" style="{{#i}}wx-next{{/i}}"></span>
+    </div>
+    {{/fixedMenu}}
+</div>

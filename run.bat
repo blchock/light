@@ -1,0 +1,1 @@
+SET DEBUG=sytcloud:* & npm run monstart
