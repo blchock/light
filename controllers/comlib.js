@@ -70,7 +70,17 @@ com.getConfig = (name, func) => {
         if (err) { console.log(err); if (func) func(); return }
         let json = JSON.parse(data.toString())//将二进制的数据转换为字符串再转换为json对象
         if (func) {
-            if (name) func(json[name])
+            if (name) {
+                if (typeof name == 'object' || typeof name == 'array') {
+                    let ret = {}
+                    for (let i = 0; i < name.length; i++) {
+                        ret[name[i]] = json[name[i]];
+                    }
+                    func(ret);
+                } else {
+                    func(json[name])
+                }
+            }
             else func(json)
         }
     })

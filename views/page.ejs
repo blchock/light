@@ -30,9 +30,6 @@
 	</script>
 	<script>
 		accessToken = "<%=accessToken%>";
-		wechatAppid = "<%=appid%>";
-		license = "<%=license%>";
-		let wxObj = {}//本系统所有项目,工单表对象,微信对象
 		//axios config
 		axios.defaults.headers.common['accessToken'] = accessToken; //这个头部accessToken 必须要放在accessToken赋值之后
 		//axios 响应拦截（配置请求回来的信息）
@@ -52,52 +49,60 @@
 			return Promise.reject(error);
 		});
 		// 初始化微信jssdk
-		// var showUrl = window.location.href.split('#')[0];
-		// var requestUrl = BaseSelfUrl + '/sr/commonResouce/wx/getwechat';
-		// console.log("requestUrl:%s,showUrl:%s", requestUrl, showUrl);
-		// axios.get(`${BaseSelfUrl}/sr/commonResouce/wx/getwechat`, { params: { requesturl: showUrl, license: license } }).then(function (res) {
-		// 	if (res.data.status === 200) {
-		// 		console.log("微信鉴权返回的数据:", res.data.record);
-		// 		wxObj.accessToken = res.data.record.accessToken;
-		// 		wx.config({
-		// 			debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来
-		// 			appId: wechatAppid, // 必填，公众号的唯一标识
-		// 			timestamp: res.data.record.timestamp, // 必填，生成签名的时间戳
-		// 			nonceStr: res.data.record.nonce, // 必填，生成签名的随机串
-		// 			signature: res.data.record.signature,// 必填，签名，见附录1
-		// 			jsApiList: [
-		// 				'chooseImage',//拍照或从手机相册中选图接口
-		// 				'uploadImage',//上传图片接口
-		// 				'getLocalImgData',//获取本地图片接口
-		// 				'previewImage',//预览图片
-		// 				'downloadImage',//下载图片
-		// 				'scanQRCode',//扫一扫
-		// 				'checkJSApi',//判断客户端是否支持js
-		// 				'startRecord',//开始录音	
-		// 				'stopRecord',//停止录音
-		// 				'onVoiceRecordEnd',//监听录音自动停止
-		// 				'playVoice',//播放语音
-		// 				'pauseVoice',//暂停播放
-		// 				'stopVoice',//停止播放
-		// 				'onVoicePlayEnd',//监听语音播放完毕
-		// 				'uploadVoice',//上传接口
-		// 				'downloadVoice',//下载接口
-		// 				'translateVoice',//智能接口识别音频
-		// 				'getNetworkType',//设备信息获取网络状态
-		// 				'getLocation',//地理位置使用内置地图
-		// 				'openLocation',//获取地理位置
-		// 				'startSearchBeacons',//摇一摇周边	开启ibeacon
-		// 				'stopSearchBeacons',//关闭ibeacon	
-		// 				'onSearchBeacons',//监听ibeacon	
-		// 				'chooseCard',//微信卡券拉取使用卡券列表
-		// 				'addCard',//批量添加卡券接口
-		// 				'openCard',//查看微信卡包的卡券
-		// 			] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
-		// 		});
-		// 	} else {
-		// 		console.log("微信鉴权失败,影响拍照等功能");
-		// 	}
-		// });
+		var showUrl = window.location.href.split('#')[0];
+		axios.get(`/wxconfig`, { params: { url: showUrl } }).then(function (ret) {
+			let res = ret.data;
+			if (res.code === 1) {
+				wx.config({
+					debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来
+					appId: res.data.appid, // 必填，公众号的唯一标识
+					timestamp: res.data.timestamp, // 必填，生成签名的时间戳
+					nonceStr: res.data.nonceStr, // 必填，生成签名的随机串
+					signature: res.data.signature,// 必填，签名，见附录1
+					jsApiList: [
+						'chooseImage',//拍照或从手机相册中选图接口
+						'uploadImage',//上传图片接口
+						'getLocalImgData',//获取本地图片接口
+						'previewImage',//预览图片
+						'downloadImage',//下载图片
+						'scanQRCode',//扫一扫
+						'checkJSApi',//判断客户端是否支持js
+						'startRecord',//开始录音	
+						'stopRecord',//停止录音
+						'onVoiceRecordEnd',//监听录音自动停止
+						'playVoice',//播放语音
+						'pauseVoice',//暂停播放
+						'stopVoice',//停止播放
+						'onVoicePlayEnd',//监听语音播放完毕
+						'uploadVoice',//上传接口
+						'downloadVoice',//下载接口
+						'translateVoice',//智能接口识别音频
+						'getNetworkType',//设备信息获取网络状态
+						'getLocation',//地理位置使用内置地图
+						'openLocation',//获取地理位置
+						'startSearchBeacons',//摇一摇周边	开启ibeacon
+						'stopSearchBeacons',//关闭ibeacon	
+						'onSearchBeacons',//监听ibeacon	
+						'chooseCard',//微信卡券拉取使用卡券列表
+						'addCard',//批量添加卡券接口
+						'openCard',//查看微信卡包的卡券
+					] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+				});
+			} else {
+				console.log("微信鉴权失败,影响拍照等功能");
+			}
+		});
+		/* wx.ready(()=>{
+			wx.checkJsApi({
+          jsApiList: [
+              'chooseImage',
+              'scanQRCode',
+          ],
+          success: function(res) {
+              alert("check js:" + JSON.stringify(res))
+          }
+      });
+		}) */
 		// 读取数据
 		var data = {
 			"accessToken": "<%=accessToken%>",
@@ -105,9 +110,7 @@
 			"code": "<%=code%>",
 			"type": "<%=type%>",
 			"orgId": "<%=orgId%>",
-			"version": "<%=version%>",
-			"appid": "<%=appid%>",
-			"license": "<%=license%>"
+			"version": "<%=version%>"
 		}
 		var params = JSON.parse(`<%-params%>`); // 传递地址栏参数
 		for (var k in params) {
@@ -269,7 +272,6 @@
 				if (json.ext) ext = json.ext;
 				url = (json.path || url) + (json.route || "/") + json.page + ext + "?accessToken=" + accessToken;
 				if (json.page) {
-					url += "&appid=" + data.appid + "&license=" + data.license;
 					if (json.templateCode) url += "&orgCode=" + data.orgId;
 					else url += "&orgId=" + data.orgId;
 				}
