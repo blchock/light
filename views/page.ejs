@@ -4,7 +4,7 @@
 <head>
 	<!-- 适配屏幕的方案是采用虚拟的“窗口”(viewport)缩放，算出缩放比，设置scale做到适配所有机型 -->
 	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" />
-	<title text="" <%=title%>""></title>
+	<title><%-title%></title>
 	<!--TODO 这里需要测试  link引入css (用绝对路径/ )  相对路径要去掉/h5/-->
 	<link rel='stylesheet' href='/stylesheets/weui.min.css' />
 	<link rel='stylesheet' href='/stylesheets/style.css' />
@@ -29,7 +29,7 @@
 		<%-template%>
 	</script>
 	<script>
-		accessToken = "<%=accessToken%>";
+		accessToken = "<%-accessToken%>";
 		//axios config
 		axios.defaults.headers.common['accessToken'] = accessToken; //这个头部accessToken 必须要放在accessToken赋值之后
 		//axios 响应拦截（配置请求回来的信息）
@@ -105,18 +105,18 @@
 		}) */
 		// 读取数据
 		var data = {
-			"accessToken": "<%=accessToken%>",
-			"title": "<%=title%>",
-			"code": "<%=code%>",
-			"type": "<%=type%>",
-			"orgId": "<%=orgId%>",
-			"version": "<%=version%>"
+			"accessToken": "<%-accessToken%>",
+			"title": "<%-title%>",
+			"code": "<%-code%>",
+			"type": "<%-type%>",
+			"orgId": "<%-orgId%>",
+			"version": "<%-version%>"
 		}
 		var params = JSON.parse(`<%-params%>`); // 传递地址栏参数
 		for (var k in params) {
 			data[k] = params[k];
 		}
-		var language = "<%=language%>" // 当前语言
+		var language = "<%-language%>" // 当前语言
 		var lang = {}
 		var dataJson = JSON.parse(`<%-data_json%>`);
 		for (var k in dataJson) {

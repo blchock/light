@@ -1,8 +1,17 @@
 # light
 像光一样闪耀，像光一般迅捷，映入你眼中，所见即所得！
 
+# 服务器接口
+
+|接口地址|参数|描述|
+| :------------: | ------------ | :------------ |
+|/||服务器首页为开发指南API文档|
+|/page|accessToken=授权码&orgId=企业ID&code=页面名&version=页面版本|主要入口：显示 Light Page 数据库动态页面，页面配置在数据库，以code+orgId+version为唯一确定关键词|
+|set-language|lang=语种|切换当前语言，语言类型目前支持这三种：英语 'en-US', 简体中文 'zh-CN',繁体中文 'zh-CHT',支持缩写en/cn/oth|
+|wxconfig|url=回调页面|获取微信配置Config，用于提供给前端jssdk的wx.config参数，需要在config.json中配置小程序的appid和secret: "app_id":"","app_secret":""|
+
 # 目录结构
-## db-pages为数据库页面库
+## db-pages为数据库动态页面(开发版本代码库)
 - 一级目录为公司名称，即组织代号org_id
 - 二级目录为页面名称，即代码code
 - 三级目录为项目配置文件
@@ -18,9 +27,10 @@
 ## config.json为配置
 - language 为当前语言
 - mysql-* 为数据库配置，其中mysql_table为数据表建表语句参考 数据库设计 章节
+- app_id,app_secret 如果动态页面用于微信小程序，需要配置小程序的id和secret用于访问微信服务
 
 ## 设计目标
-实现自由的网页页面可定制，使用模板语言，页面配置在数据库，实现热更新。
+实现自由的网页页面可定制，使用模板语言，页面配置在数据库，实现热更新。取名：数据库动态页面(Light Page)
 
 ## 数据库设计
 ```sql
@@ -40,30 +50,32 @@
   `create_by` bigint(20) DEFAULT NULL COMMENT '创建人',
   `create_date` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id_`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='light页面配置表（light_pages）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Light Page配置表（light_pages）';
 ```
 
 ## 服务器设计思路
-light页面全部可配置，通过node.js express读取数据库的页面数据，发送到静态页面中渲染
+Light Page全部可配置，通过node.js express读取数据库的页面数据，发送到静态页面中渲染
 前端发送页面带参数，其中code对应数据库中的code（唯一字段），以此为依据拉取数据，
-同时要判断前端的页面版本version是否匹配数据库中记录的version，判断orgType是否匹配数据库中记录的org_id组织类型（用于识别第三方客户），并判断数据库中is_active是否有效，
+同时要判断前端的页面版本version是否匹配数据库中记录的version，判断orgId是否匹配数据库中记录的org_id组织类型（用于识别第三方客户），并判断数据库中is_active是否有效，
 如果都满足，
 node.js express端将数据库的数据发送到静态页面中page.html中：
 数据库的数据和前端传的参数全部发给page
 跳转页面的地址栏参数和自定义地址栏参数也都会发给当前页面，使用模板语言获取参数值，如地址栏：&abc=hello，模板中：{{abc}}，全局：data.abc
 数据库中data_json字段中数据要解析成json,再把json中数据拆分成变量发给page。
 
-## light模板开发介绍
-light页面使用mustache语法渲染页面，在数据库中title字段是页面标题，
+## Light Page 模板开发介绍
+Light Page使用mustache语法渲染页面，在数据库中title字段是页面标题，
 template数据存储的是页面模板，
 data_json数据存储的是模板数据，
 访问页面地址类似下面的url
 http://localhost:3000/page?accessToken=abc&orgId=123&code=home&version=1#/
+accessToken会被加入axios的请求头中，可以给你第的axios请求添加tokens
+orgId+code+version唯一确定了一个 组织+页面名+页面版本 对应的唯一页面
 其中version字段需要与数据库中的相同字段匹配，代表该页面当前版本；type字段用于标识页面类型；is_active字段代表数据库中该页面是否启用；code字段也需要与链接中code匹配，代表该页面的名称
 
-模版遵循mustache语法书写，data_json里的数据可以直接在模板中读取，页面参数如title,code.type,accessToken,orgType,isShowMenu,version以及数据库中的参数change_by,create_time等都可以直接在模版中读取。
+模版遵循mustache语法书写，data_json里的数据可以直接在模板中读取，页面参数如code,accessToken,orgId,version以及数据库中的参数title,change_by,create_time等都可以直接在模版中读取。
 
-同时light模板开发中还支持使用Zepto.js，JQuery以及Sign.js等插件功能。
+同时Light Page 模板开发中还支持使用Zepto.js，JQuery以及Sign.js等插件功能。
 
 ## 模板特殊数据说明
 data_json中有保留数据字段，以下表格中详细说明：
@@ -91,7 +103,7 @@ data_json中有保留数据字段，以下表格中详细说明：
 {{#go}}跳转页面json参数列表{{/go}} 跳转到项目内或项目外的页面
 
 > 参数：url 直接使用url，goType 跳转类型，path 路径，route 路由，page 页面，ext 后缀，args 后参数，其他的都作为键值对放参数中
-> 地址拼接模式：path(window.location.origin) + route(/sr/h5/) + page + ext(.html) ? clientId,accessToken,orgType,... + #/ + args;
+> 地址拼接模式：path(window.location.origin) + route(/sr/h5/) + page + ext(.html) ? clientId,accessToken,orgId,... + #/ + args;
 > goType 跳转类型：href当前页面，open新的窗口，string 不跳转只返回
 
 {{#s}}数值{{/s}} 获取数值对应的设计分辨率px长度，在实际页面上应该显示的长度和单位，in: 30 out: 4vw
@@ -173,7 +185,7 @@ TGE.AssetManager.SpriteSheets["home"] = {
 {{#go}}跳转页面json参数列表{{/go}}
 ```
 参数：url 直接使用url，goType 跳转类型，path 路径，route 路由，page 页面，ext 后缀，args 后参数，其他的都作为键值对放参数中
-地址拼接模式：path(window.location.origin) + route(/sr/h5/) + page + ext(.html) ? clientId,accessToken,orgType,... + #/ + args;
+地址拼接模式：path(window.location.origin) + route(/sr/h5/) + page + ext(.html) ? clientId,accessToken,orgId,... + #/ + args;
 goType 跳转类型：href当前页面，open新的窗口，string 不跳转只返回
 {{#go}}历史记录后退值{{/go}}
 #### 跳转示例：
@@ -182,7 +194,7 @@ goType 跳转类型：href当前页面，open新的窗口，string 不跳转只�
 |内联跳转|onclick="{{#go}}{"url":"https://www.baidu.com/","goType":"open"}{{/go}}"|在新窗口打开百度页面|
 |内联跳转|onclick="{{#go}}{"url":"https://www.baidu.com/","goType":"href"}{{/go}}"|在当前窗口打开百度页面|
 |内联跳转|<span>{{#go}}{"url":"https://www.baidu.com/"}{{/go}}</span>|将网址内容直接返回，不跳转|
-|内联跳转|onclick="{{#go}}{"code":"demo","version":"0.0.1"}{{/go}}"|跳转到light页面demo，版本号0.0.1|
+|内联跳转|onclick="{{#go}}{"code":"demo","version":"0.0.1"}{{/go}}"|跳转到Light Pagedemo，版本号0.0.1|
 |内联跳转|onclick="{{#go}}{"code":"home","version":"0.0.1","goType":"open"}{{/go}}"|新窗口跳转到light首页home版本号0.0.1|
 |内联跳转|onclick="{{#go}}-1{{/go}}"|返回上一页（当使用了href方式跳转后生效）|
 |上下文配置中跳转 {{#go}}goto{{/go}}其中goto定义在上下文配置中|"goto": {"code": "home","version": "0.0.1","goType": "open"}|新窗口跳转到light首页home版本号0.0.1，该配置在上下文环境中，所以在模板template中只需要使用{{#go}}goto{{/go}}即可|
@@ -200,8 +212,8 @@ goType 跳转类型：href当前页面，open新的窗口，string 不跳转只�
 |tag|跳转到tag|从tag标签库中寻找tag对应的链接数据，跳转到tag页面，其他参数将合并进去|
 |addTag|添加tag|以当前链接数据为基准创建新的tag，addTag的值就是新tag的名称|
 
-如果page不为false则在accessToken之后会加上&clientId=???&orgType=???
-如果page不为false并且templateCode有值则会加上orgCode=???替换orgType
+如果page不为false则在accessToken之后会加上&clientId=???&orgId=???
+如果page不为false并且templateCode有值则会加上orgCode=???替换orgId
 接下来会将未识别的参数全部加到get键值对中
 最后加上#/和后面的参数args
 比如
@@ -218,7 +230,7 @@ goType 跳转类型：href当前页面，open新的窗口，string 不跳转只�
 ```
 goType参数为跳转类型，如果使用url自定义链接方式，则一定要配置goType，不配置将直接返回链接内容
 
-## light模板开发实例
+## Light Page 模板开发实例
 以下为一个简单实例，介绍light数据库配置页面和参数传递事件定义全流程：
 ##### style
 ``` css
@@ -241,7 +253,7 @@ goType参数为跳转类型，如果使用url自定义链接方式，则一定�
 ``` json
 {
 	"debug": true,
-	"ver": "0.0.1",
+	"ver": 1,
 	"personName": "test",
 	"lang": {
 		"cn": {
@@ -254,10 +266,19 @@ goType参数为跳转类型，如果使用url自定义链接方式，则一定�
 			"test": "Shenzhen test"
 		}
 	},
+	"class": [
+		"http://cdn.staticfile.org/amazeui/1.0.0-rc1/css/amazeui.basic.min.css"
+	],
+	"require": [
+		"http://cdn.staticfile.org/amazeui/1.0.0-rc1/js/amazeui.basic.min.js"
+	],
 	"func": {
 		"hello": "()=>{ return 'hello,world! ' + data.personName }",
-		"testAdd": "function testAdd() {$('#retNum').html(Number($('#aNum').val()) + Number($('#bNum').val())); }"
-	}
+		"testAdd": "function testAdd() {$('#retNum').html(Number($('#aNum').val()) + Number($('#bNum').val())); }",
+		"openScan": "function openScan() { wx.scanCode({success: (res)=>{console.log('code:',res);}}); }",
+		"openCamera": "function openCamera() { wx.chooseImage({success: (res)=>{console.log('images:',res);}}); }"
+	},
+	"mounted": "()=>{console.log('begin test..');wx.ready(function(){console.log('begin test2');wx.checkJsApi({jsApiList:['scanQRCode','chooseImage'],success:function(res){console.log(res)}})})};"
 }
 ```
 
@@ -267,10 +288,42 @@ goType参数为跳转类型，如果使用url自定义链接方式，则一定�
     <h1>{{hello}}</h1>
     <h2>{{#t}}test{{/t}} {{orgType}}</h2>
     <p>version: {{ver}} </p>
+    <p>user: {{user}} </p>
     <p class="test-pl">
         <input type="text" id="aNum" /> + <input type="text" id="bNum" /> = <span id="retNum">0</span>
         <button class="test-btn" onclick="testAdd()">求和计算</button>
     </p>
+    <p>
+        <button onclick="{{#go}}{"tag":"home"}{{/go}}">返回首页</button>
+    </p>
+    <br />
+    <p>
+        <button class="test-btn" onclick="openScan()">开启扫码</button>
+        <button class="test-btn" onclick="openCamera()">开启拍照</button>
+    </p>
+    <br />
+    <div class="am-tabs" data-am-tabs>
+        <ul class="am-tabs-nav am-nav am-nav-tabs">
+            <li class="am-active"><a href="javascript: void(0)">牛蹄中鱼</a></li>
+            <li><a href="javascript: void(0)">炙手可热</a></li>
+            <li><a href="javascript: void(0)">深思远虑</a></li>
+        </ul>
+        <div class="am-tabs-bd">
+            <div class="am-tab-panel am-active">
+                战国时期，宋国庄周家贫，一次向他的朋友监河侯借粮食时，朋友推说等收了租再借给他。他给朋友讲：路上遇到一条牛蹄印里水快干的鲫鱼向他求助，他答应鲫鱼说到要去吴国越国去给他借水，鲫鱼说等你回来时，我已经挂在鱼肆了。
+                牛蹄中鱼的意思是：牛蹄：是指牛蹄印里的积水。牛蹄印坑里的鱼。比喻死期迫近。
+            </div>
+            <div class="am-tab-panel">
+                唐玄宗李隆基年轻时是一个很有作为的皇帝，但是，唐玄宗后来任用李林甫为丞相，政治开始腐败。公元745年，他封杨玉环为贵妃，纵情声色，奢侈荒淫，政治越来越腐败了。杨贵妃有个堂兄叫杨刽。由于杨贵妃得宠，杨刽也平步青云，做了御史，唐玄宗还赐名“国忠”。不久，李林甫死了，唐玄宗便任命杨国忠做丞相，把朝廷政事全部交给杨国忠处理。一时之间，杨家兄妹权势熏天，他们结党营私，把整个朝廷搞得乌烟瘴气，以致不久以后就爆发了安禄山、史思明的叛乱。可当时，杨家兄妹过着花天酒地、穷奢极欲的生活。
+            　　公元753年3月3日，杨贵妃等人到曲江边游春野宴，轰动一时。诗人杜甫对杨家兄妹这种只顾自己享乐，不管人民死活的行为极为愤慨，写出了著名的《丽人行》一诗，大胆揭露和深刻讽刺了杨家兄妹生活的奢侈和权势的显赫。“炙手可热势绝伦，慎莫近前丞相嗔！”便是诗中的二句。这二句诗的意思是：杨家权重位高，势焰的人，没有人能与之相比；你千万不要走近前去，以免惹得丞相发怒生气。
+                炙手可热的意思是：手摸上去感到热得烫人。比喻权势大，气焰盛，使人不敢接近。
+            </div>
+            <div class="am-tab-panel">
+                汉朝时期，汉哀帝的老师师丹为人廉正守道，深得皇帝的信任，在改革币制问题上他认为时机不成熟，国弱民贫会引起恶性循环。由于他曾得罪丁太后及傅太后，因而被认为不支持改革。申咸为他求情说此事师丹欠深思远虑，但不应治罪。
+                深思远虑的意思是：谋划周密，老虎长远。指计划周到，具有远见。
+            </div>
+        </div>
+    </div>
 </div>
 ```
 
@@ -278,12 +331,19 @@ goType参数为跳转类型，如果使用url自定义链接方式，则一定�
 
 > 第一行代码h1中读取了模板数据中的hello函数，该函数是匿名函数，返回一个字符串，字符串中读取了模板数据的personName字段的内容，这里要注意personName需要在func->hello之前定义，才能被hello函数使用；在模板中用{{hello}}可以访问匿名函数hello
 >
-> 第二行代码h2中读取了国际化的字符串test，接一个空格后读取了微信地址栏中参数orgType组织类型
+> 第二行代码h2中读取了国际化的字符串test，接一个空格后读取了微信地址栏中参数orgId组织类型
 >
 > 第三行代码{{ver}}直接访问了模板数据中的ver数据0.0.1，这是通用的mustache语法
 >
 > 第四行代码定义了一个段落，段落中声明了两个input输入框和一个span文本框，定义了一个按钮“求和计算”，该按钮onclick访问了testAdd函数；这个函数也定义在模板数据的func中，这时候定义的不是匿名函数，所以实际访问的是testAdd全局函数，该函数使用jquery访问了页面中的两个input输入框，从中间取值然后执行相加运算，赋值给文本框显示出来。这时候定义的func中的键名其实没有作用，只是作为一个id而已，键对应的值中定义了真正的函数名，这样的定义方式无法用{{testAdd}}来访问
-
-
+> 
+> 第五行使用go跳转页面，跳转到tag为home的首页
+> 
+> 第六行使用了微信的扫码和拍照功能
+> 
+> 第七行演示了外部引入的amazeui（一款基于zepto.js的UI框架）中tabs选项卡的示例，在Light中你可以随意引入其他的js库，只需要在data中的class或require中以数组形式填写外部资源链接即可，Light会自动在LightPage头部引入，在代码中可以使用
+> 
+> 你还可以在data中定义mounted或created函数，用于在网页载入时（created）或网页渲染完成后（mounted）自动执行初始化内容
+> 
 
 

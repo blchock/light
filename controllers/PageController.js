@@ -8,6 +8,8 @@ var com = require("./comlib");
 var i18n = require('i18n');
 var axios = require('axios');
 var fs = require('fs');
+var marked = require('marked');
+var hljs = require('highlight.js');
 
 /**
  * 切换语言
@@ -22,6 +24,8 @@ exports.setLanguage = (req, res) => {
         res.json(`Set Language to:${lang}`);
     });
 };
+
+//////////////////////////////////// 微信小程序 ////////////////////////////////////
 
 var accessTokenJson = {
     access_token: '',
@@ -138,6 +142,8 @@ exports.getWxConfig = (req, res) => {
     })
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+
 /**
  * 渲染页面
  * @param accessToken 授权请求头（可选）
@@ -162,4 +168,30 @@ exports.renderPage = (req, res) => {
     } else {
         res.render('mvcerror', { msg: 'code and version and orgId is necessary', data: '' });
     }
+}
+
+exports.renderIndex = (req, res) => {
+    fs.readFile("./README.md", function (err, data) {
+        if (err) {
+            console.log(err);
+            res.send("文件不存在！");
+        } else {
+            marked.setOptions({
+                renderer: new marked.Renderer(),
+                highlight: function(code) {
+                  return hljs.highlightAuto(code).value;
+                },
+                pedantic: false,
+                gfm: true,
+                tables: true,
+                breaks: false,
+                sanitize: false,
+                smartLists: true,
+                smartypants: false,
+                xhtml: false
+              }
+            );
+            res.render('index', {doc: marked(data.toString())});
+        }
+    });
 }

@@ -95,7 +95,7 @@
 	},
 	"imgs": {
 		"wx-banner": {
-			"url": "/api/file/down/1275015788557897728.png",
+			"url": "/file/wx-banner.png",
 			"area": {
 				"w": "100%"
 			}
@@ -108,7 +108,7 @@
 				"w": 256,
 				"h": 512
 			},
-			"url": "/api/file/down/1275015773752004608.png",
+			"url": "/file/home.png",
 			"img": {
 				"wx-icon-1":[126, 126, 118, 118],  
 				"wx-icon-2":[4, 126, 118, 118],  
