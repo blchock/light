@@ -10,6 +10,16 @@
 |set-language|lang=语种|切换当前语言，语言类型目前支持这三种：英语 'en-US', 简体中文 'zh-CN',繁体中文 'zh-CHT',支持缩写en/cn/oth|
 |wxconfig|url=回调页面|获取微信配置Config，用于提供给前端jssdk的wx.config参数，需要在config.json中配置小程序的appid和secret: "app_id":"","app_secret":""|
 
+## 部署
+    Light使用 node.js+express 后端框架，需要先安装node.js，再执行以下脚本部署本地环境：
+    cd light
+    npm install (or yarn)
+    ./run
+    api document open: http://localhost:3000/
+    run page open: http://localhost:3000/page?accessToken=&orgId=123&code=home&version=1#/
+    需要安装mysql数据库，并创建表插入 Light Page 页面代码数据
+    部署配置需要修改config.json文件
+
 # 目录结构
 ## db-pages为数据库动态页面(开发版本代码库)
 - 一级目录为公司名称，即组织代号org_id
